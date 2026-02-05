@@ -19,8 +19,13 @@ namespace Chris.Mongodb.Demo.Controllers
         [HttpPost]
         public async Task<ActionResult<User>> AddUser(User user)
         {
+            var exsitedUser = await _userService.GetUserByIdAsync(user.Id);
+            if (exsitedUser != null)
+            {
+                return Conflict("The user is already existed");
+            }
+
             var newUser = await _userService.AddUserAsync(user);
-            // 返回201 Created，并指定Location头
             return CreatedAtAction(nameof(GetUserById), new { id = newUser.Id }, newUser);
         }
 
@@ -39,7 +44,7 @@ namespace Chris.Mongodb.Demo.Controllers
             var user = await _userService.GetUserByIdAsync(id);
             if (user == null)
             {
-                return NotFound("用户不存在");
+                return NotFound("The user does not exist");
             }
             return Ok(user);
         }
@@ -50,12 +55,12 @@ namespace Chris.Mongodb.Demo.Controllers
         {
             if (id != user.Id)
             {
-                return BadRequest("Id不匹配");
+                return BadRequest("ID mismatch");
             }
             var isUpdated = await _userService.UpdateUserAsync(id, user);
             if (!isUpdated)
             {
-                return NotFound("用户不存在，更新失败");
+                return NotFound("");
             }
             return NoContent();
         }
@@ -67,7 +72,7 @@ namespace Chris.Mongodb.Demo.Controllers
             var isDeleted = await _userService.DeleteUserAsync(id);
             if (!isDeleted)
             {
-                return NotFound("用户不存在，删除失败");
+                return NotFound("The user does not exist");
             }
             return NoContent();
         }

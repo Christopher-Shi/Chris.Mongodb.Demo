@@ -1,5 +1,6 @@
 
 using Chris.Mongodb.Demo.Services;
+using Microsoft.OpenApi;
 
 namespace Chris.Mongodb.Demo
 {
@@ -13,13 +14,23 @@ namespace Chris.Mongodb.Demo
 
             builder.Services.AddControllers();
 
-            // 注册MongoDB上下文（单例模式）
             builder.Services.AddSingleton<MongoDbContext>();
-            // 注册用户服务（作用域，适配Web请求生命周期）
-            builder.Services.AddScoped<UserService>();
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
+
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "MongoDB API",
+                    Version = "v1",
+                    Description = "A mongodb demo API"
+                });
+            });
+
+            builder.Services.AddScoped<UserService>();
 
             var app = builder.Build();
 
@@ -27,6 +38,13 @@ namespace Chris.Mongodb.Demo
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
+                app.MapGet("/", () => Results.Redirect("/swagger/index.html"));
+                app.UseSwagger();
+                app.UseSwaggerUI(options =>
+                {
+                    options.SwaggerEndpoint("/swagger/v1/swagger.json", "MongoDB API v1");
+                    options.RoutePrefix = "swagger";
+                });
             }
 
             app.UseHttpsRedirection();
