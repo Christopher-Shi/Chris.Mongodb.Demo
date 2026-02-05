@@ -1,0 +1,6 @@
+@Chris.Mongodb.Demo_HostAddress = http://localhost:5023
+
+GET {{Chris.Mongodb.Demo_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
